@@ -10,7 +10,7 @@ dynamodb_table = "terraform-up-and-running-locks-14-04-2022"
 encrypt        = true
 ```
 3. Run the terraform init with the backend config file
-terraform init --backend-config=backend.hcl
+```terraform init --backend-config=backend.hcl```
 
 4. Destroy s3 buckets with contents
 - add ```force_destroy = true``` to aws_s3_bucket resource

@@ -7,16 +7,16 @@ terraform {
       version = "~> 4.0"
     }
   }
-  # backend "s3" {
-  #   # # Replace this with your bucket name!
-  #   # bucket = "terraform-up-and-running-state-14-04-2022"
-  #   key = "global/s3/terraform.tfstate"
-  #   # region = "us-west-2"
+  backend "s3" {
+    # # Replace this with your bucket name!
+    # bucket = "terraform-up-and-running-state-14-04-2022"
+    key = "global/s3/terraform.tfstate"
+    # region = "us-west-2"
 
-  #   # # Replace this with your DynamoDB table name!
-  #   # dynamodb_table = "terraform-up-and-running-locks-14-04-2022"
-  #   # encrypt        = true
-  # }
+    # # Replace this with your DynamoDB table name!
+    # dynamodb_table = "terraform-up-and-running-locks-14-04-2022"
+    # encrypt        = true
+  }
 }
 
 provider "aws" {

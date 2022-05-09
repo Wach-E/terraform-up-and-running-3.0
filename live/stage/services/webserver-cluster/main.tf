@@ -23,6 +23,14 @@ provider "aws" {
   region = "us-west-2"
 }
 
+module "mysql" {
+  source = "../../../../modules/data-stores/mysql"
+
+  db_name     = "stage_database"
+  db_username = var.db_username
+  db_password = var.db_password
+}
+
 module "webserver_cluster" {
   source = "../../../../modules/services/webserver-cluster"
 
