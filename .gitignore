@@ -18,6 +18,10 @@
 /modules/*/*/*.tfstate
 /modules/*/*/*.tfstate.*
 
+/examples/*/.terraform
+/examples/*/*.tfstate
+/examples/*/*.tfstate.*
+/examples/*/var-value
 # Crash log files
 crash.log
 

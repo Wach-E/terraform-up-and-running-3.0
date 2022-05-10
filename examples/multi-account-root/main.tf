@@ -8,7 +8,7 @@ provider "aws" {
   alias  = "child"
 
   assume_role {
-    role_arn = "arn:aws:iam::953643278386:role/OrganizationAccountAccessRole"
+    role_arn = var.child_iam_role_arn
   }
 }
 
