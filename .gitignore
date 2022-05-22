@@ -22,6 +22,10 @@
 /examples/*/*.tfstate
 /examples/*/*.tfstate.*
 /examples/*/var-value
+
+/examples/*/*/.terraform
+/examples/*/*/*.tfstate
+/examples/*/*/*.tfstate.*
 # Crash log files
 crash.log
 
