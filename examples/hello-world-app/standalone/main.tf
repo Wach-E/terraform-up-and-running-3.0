@@ -6,7 +6,7 @@ module "hello_world_app" {
   source = "../../../modules/services/hello-world-app"
 
   server_text = "Hello, World"
-  environment = "example"
+  environment = var.environment
 
   mysql_config = var.mysql_config
 
