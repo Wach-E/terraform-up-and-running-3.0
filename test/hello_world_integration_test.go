@@ -9,27 +9,45 @@ import (
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
 // Replace these with the proper paths to your modules
 const dbDirStage = "../live/stage/data-stores/mysql"
 const appDirStage = "../live/stage/services/hello-world-app"
 
-func TestHelloWorldAppStage(t *testing.T) {
+func TestHelloWorldAppStageWithStages(t *testing.T) {
 	t.Parallel()
 
+	// Store the function in a short variable name solely to make the
+	// code examples fit better in the book.
+	stage := test_structure.RunTestStage
+
 	// Deploy the MySQL DB
-	dbOpts := createDbOpts(t, dbDirStage)
-	defer terraform.Destroy(t, dbOpts)
-	terraform.InitAndApply(t, dbOpts)
+	defer stage(t, "teardown_db", func() { teardownDb(t, dbDirStage) })
+	stage(t, "deploy_db", func() { deployDb(t, dbDirStage) })
 
 	// Deploy the hello-world-app
-	helloOpts := createHelloOpts(dbOpts, appDirStage)
-	defer terraform.Destroy(t, helloOpts)
-	terraform.InitAndApply(t, helloOpts)
+	defer stage(t, "teardown_app", func() { teardownApp(t, appDirStage) })
+	stage(t, "deploy_app", func() { deployApp(t, dbDirStage, appDirStage) })
 
 	// Validate the hello-world-app works
-	validateHelloApp(t, helloOpts)
+	stage(t, "validate_app", func() { validateApp(t, appDirStage) })
+}
+
+func deployDb(t *testing.T, dbDir string) {
+	dbOpts := createDbOpts(t, dbDir)
+
+	// Save data to disk so that other test stages executed at a later
+	// time can read the data back in
+	test_structure.SaveTerraformOptions(t, dbDir, dbOpts)
+
+	terraform.InitAndApply(t, dbOpts)
+}
+
+func teardownDb(t *testing.T, dbDir string) {
+	dbOpts := test_structure.LoadTerraformOptions(t, dbDir)
+	defer terraform.Destroy(t, dbOpts)
 }
 
 func createDbOpts(t *testing.T, terraformDir string) *terraform.Options {
@@ -57,6 +75,22 @@ func createDbOpts(t *testing.T, terraformDir string) *terraform.Options {
 	}
 }
 
+func deployApp(t *testing.T, dbDir string, helloAppDir string) {
+	dbOpts := test_structure.LoadTerraformOptions(t, dbDir)
+	helloOpts := createHelloOpts(dbOpts, helloAppDir)
+
+	// Save data to disk so that other test stages executed at a later
+	// time can read the data back in
+	test_structure.SaveTerraformOptions(t, helloAppDir, helloOpts)
+
+	terraform.InitAndApply(t, helloOpts)
+}
+
+func teardownApp(t *testing.T, helloAppDir string) {
+	helloOpts := test_structure.LoadTerraformOptions(t, helloAppDir)
+	defer terraform.Destroy(t, helloOpts)
+}
+
 func createHelloOpts(
 	dbOpts *terraform.Options,
 	terraformDir string) *terraform.Options {
@@ -69,7 +103,20 @@ func createHelloOpts(
 			"db_remote_state_key":    dbOpts.BackendConfig["key"],
 			"environment":            dbOpts.Vars["db_name"],
 		},
+
+		// Retry up to 3 times, with 5 seconds between retries,
+		// on known errors
+		MaxRetries:         3,
+		TimeBetweenRetries: 5 * time.Second,
+		RetryableTerraformErrors: map[string]string{
+			"RequestError: send request failed": "Throttling issue?",
+		},
 	}
+}
+
+func validateApp(t *testing.T, helloAppDir string) {
+	helloOpts := test_structure.LoadTerraformOptions(t, helloAppDir)
+	validateHelloApp(t, helloOpts)
 }
 
 func validateHelloApp(t *testing.T, helloOpts *terraform.Options) {
