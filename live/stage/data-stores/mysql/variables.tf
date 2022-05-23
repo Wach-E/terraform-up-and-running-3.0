@@ -9,3 +9,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "db_name" {
+  description = "The name to use for the database"
+  type        = string
+  default     = "example_database_stage"
+}
