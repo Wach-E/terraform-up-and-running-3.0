@@ -7,14 +7,14 @@ terraform {
       version = "~> 4.0"
     }
   }
-  backend "s3" {
-    # The comments in this backend is configured through backend.hcl!
-    # bucket 
-    key = "prod/data-stores/mysql/terraform.tfstate"
-    # region
-    # dynamodb_table
-    # encrypt
-  }
+  # backend "s3" {
+  #   # The comments in this backend is configured through backend.hcl!
+  #   # bucket 
+  #   key = "prod/data-stores/mysql/terraform.tfstate"
+  #   # region
+  #   # dynamodb_table
+  #   # encrypt
+  # }
 }
 
 provider "aws" {

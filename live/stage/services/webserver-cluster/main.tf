@@ -10,7 +10,7 @@ terraform {
   # backend "s3" {
   #   # Replace this with your bucket name!
   #   # bucket
-  #   key = "stage/services/webserver-cluster/terraform.tfstate"
+  #   # key
   #   # region
 
   #   # Replace this with your DynamoDB table name!
